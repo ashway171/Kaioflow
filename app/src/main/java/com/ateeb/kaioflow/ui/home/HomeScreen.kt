@@ -1,7 +1,7 @@
 package com.ateeb.kaioflow.ui.home
 
+import android.content.pm.PackageManager
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,14 +22,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.transform.RoundedCornersTransformation
+import com.ateeb.kaioflow.R
 import com.ateeb.kaioflow.ui.common.rememberUsageStatsPermission
 
 @Composable
@@ -235,6 +242,15 @@ fun AppListRender(
 
 @Composable
 fun AppListItem(app: AppInfo) {
+    val context = LocalContext.current
+    val iconRes = try {
+        "android.resource://${app.packageName}/${
+            context.packageManager.getApplicationInfo(app.packageName, 0).icon
+        }"
+    } catch (e: PackageManager.NameNotFoundException) {
+        R.drawable.ic_launcher_foreground
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -242,12 +258,18 @@ fun AppListItem(app: AppInfo) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         // App Icon
-        Image(
-            bitmap = app.icon,
+        AsyncImage(
+            model =  ImageRequest.Builder(context)
+                .data(iconRes)
+                .crossfade(true)
+                .build(),
             contentDescription = "${app.name} icon",
             modifier = Modifier
                 .size(48.dp)
-                .padding(end = 12.dp)
+                .padding(end = 12.dp),
+            error = painterResource(R.drawable.ic_launcher_foreground),
+            placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
+            contentScale = ContentScale.Fit
         )
 
         // App name and usage time

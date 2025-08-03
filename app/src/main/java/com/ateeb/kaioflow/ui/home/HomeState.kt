@@ -16,6 +16,5 @@ data class HomeState (
 data class AppInfo(
     val packageName: String = "",
     val name: String = "",
-    val icon: ImageBitmap,
     val usageMinutes: Long
 )

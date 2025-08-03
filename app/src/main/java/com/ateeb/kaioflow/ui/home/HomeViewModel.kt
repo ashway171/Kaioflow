@@ -3,16 +3,9 @@ package com.ateeb.kaioflow.ui.home
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.Drawable
 import android.util.Log
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ateeb.kaioflow.R
 import com.ateeb.kaioflow.permissions.PermissionManager
 import com.ateeb.kaioflow.permissions.UsageStatsPermissionManager
 import kotlinx.coroutines.delay
@@ -90,7 +83,6 @@ class HomeViewModel(private val permissionManager: PermissionManager = UsageStat
 
     private fun getInstalledAppsWithUsage(context: Context): List<AppInfo> {
         val pm = context.packageManager
-        val defaultDrawable = ContextCompat.getDrawable(context, R.drawable.ic_launcher_foreground)!!
         val apps = try {
             pm.getInstalledPackages(PackageManager.GET_PERMISSIONS)
                 .filter { packageInfo ->
@@ -99,16 +91,10 @@ class HomeViewModel(private val permissionManager: PermissionManager = UsageStat
                 }
                 .map { packageInfo ->
                     val appName = packageInfo.applicationInfo?.loadLabel(pm).toString()  ?: packageInfo.packageName
-                    val iconDrawable = try {
-                        packageInfo.applicationInfo?.loadIcon(pm) ?: defaultDrawable
-                    } catch (e: Exception) {
-                        defaultDrawable
-                    }
-                    val icon = iconDrawable.toImageBitmap()
+
                     AppInfo(
                         packageName = packageInfo.packageName,
                         name = appName,
-                        icon = icon,
                         usageMinutes = getDailyUsageMinutes(
                             context, packageInfo.packageName
                         )
@@ -145,18 +131,6 @@ class HomeViewModel(private val permissionManager: PermissionManager = UsageStat
         val usage = stats?.find { it.packageName == packageName }?.totalTimeInForeground ?: 0L
         Log.d("HomeViewModel", "$packageName usage: ${usage / (1000 * 60)} min")
         return usage / (1000 * 60)
-    }
-
-    private fun Drawable.toImageBitmap(): ImageBitmap {
-        val bitmap = Bitmap.createBitmap(
-            intrinsicWidth.coerceAtLeast(1),
-            intrinsicHeight.coerceAtLeast(1),
-            Bitmap.Config.ARGB_8888
-        )
-        val canvas = Canvas(bitmap)
-        setBounds(0, 0, canvas.width, canvas.height)
-        draw(canvas)
-        return bitmap.asImageBitmap()
     }
 
 }
