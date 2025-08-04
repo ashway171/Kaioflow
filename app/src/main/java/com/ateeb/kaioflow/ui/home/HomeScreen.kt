@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -35,7 +34,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import coil.transform.RoundedCornersTransformation
 import com.ateeb.kaioflow.R
 import com.ateeb.kaioflow.ui.common.rememberUsageStatsPermission
 
@@ -85,7 +83,6 @@ fun HomeScreen(
             onMinutesChange = { minutes ->
                 viewModel.processIntent(HomeIntent.UpdateMinutes(minutes), context)
             },
-            selectedTimeInMillis = state.selectedTimeInMillis,
             onSetFocusDuration = {
                 viewModel.processIntent(
                     HomeIntent.SetFocusDuration(state.selectedHours, state.selectedMinutes),
@@ -112,7 +109,6 @@ fun FocusTimeSelector(
     minutes: Float,
     onHoursChange: (Float) -> Unit,
     onMinutesChange: (Float) -> Unit,
-    selectedTimeInMillis: Long,
     onSetFocusDuration: () -> Unit
 ) {
     Text(
@@ -236,7 +232,6 @@ fun AppListRender(
                 }
             }
         }
-
     }
 }
 
@@ -259,7 +254,7 @@ fun AppListItem(app: AppInfo) {
     ) {
         // App Icon
         AsyncImage(
-            model =  ImageRequest.Builder(context)
+            model = ImageRequest.Builder(context)
                 .data(iconRes)
                 .crossfade(true)
                 .build(),
